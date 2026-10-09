@@ -1,0 +1,11 @@
+com\example\common\security\AuthServiceAuthenticationFilter.class
+com\example\common\security\AuthBearerForwardingContext.class
+com\example\common\security\AuthResourceServerAutoConfiguration.class
+com\example\common\security\AuthCookieSupport.class
+com\example\common\security\AuthJwtValidator.class
+com\example\common\security\AuthSecurityProperties$Jwt.class
+com\example\common\security\SessionBearerProvisioningFilter.class
+com\example\common\security\AuthJwtIssuer.class
+com\example\common\security\SsoCookieNames.class
+com\example\common\security\AuthSecurityProperties.class
+com\example\common\security\AuthSessionValidator.class

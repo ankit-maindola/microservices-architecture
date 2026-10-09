@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Auth Service – Sign in</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 24rem; margin: 3rem auto; padding: 0 1rem; }
+        label { display: block; margin-top: 1rem; font-weight: 600; }
+        input { width: 100%; padding: 0.5rem; margin-top: 0.25rem; box-sizing: border-box; }
+        button { margin-top: 1.25rem; padding: 0.5rem 1rem; cursor: pointer; }
+        .error { color: #b00020; margin-top: 1rem; }
+        .welcome { margin-top: 1rem; }
+    </style>
+</head>
+<body>
+<div th:if="${email == null}">
+    <h1>Sign in</h1>
+    <p>Use the email and password you registered with this service.</p>
+    <form th:action="@{/api/auth/session/login}" method="post">
+        <label for="username">Email</label>
+        <input id="username" name="username" type="email" autocomplete="username" required/>
+
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required/>
+
+        <input type="hidden"
+               th:if="${_csrf != null}"
+               th:name="${_csrf.parameterName}"
+               th:value="${_csrf.token}"/>
+
+        <button type="submit">Login</button>
+    </form>
+    <p th:if="${param.error}" class="error">Invalid email or password.</p>
+    <p th:if="${param.logout}" class="welcome">You have been signed out.</p>
+    <p class="welcome">Already signed in? Open <a th:href="@{/api/auth/home}">account home</a> to sign out.</p>
+</div>
+
+<div th:if="${email != null}">
+    <h1>Welcome</h1>
+    <p class="welcome">Signed in as <strong th:text="${email}">user</strong>.</p>
+    <p>JWT clients can use <code>POST /api/auth/public/login</code> for tokens.</p>
+    <p><a th:href="@{/api/auth/session/me}">Session check</a> (shows your email)</p>
+    <p><a href="http://localhost:8080/api/users/orders/order333">Try order via gateway</a>
+       (same browser session; use <code>localhost</code> everywhere)</p>
+    <form th:action="@{/api/auth/session/logout}" method="post">
+        <input type="hidden"
+               th:if="${_csrf != null}"
+               th:name="${_csrf.parameterName}"
+               th:value="${_csrf.token}"/>
+        <button type="submit">Sign out</button>
+    </form>
+    <p class="welcome"><a th:href="@{/api/auth/session/logout}">Sign out (link)</a></p>
+</div>
+</body>
+</html>

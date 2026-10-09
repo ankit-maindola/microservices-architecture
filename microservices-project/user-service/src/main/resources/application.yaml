@@ -1,0 +1,38 @@
+server:
+  port: 8082
+  servlet:
+    session:
+      cookie:
+        name: USER_SERVICE_SESSION
+
+spring:
+  application:
+    name: user-service
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/user_db
+    username: root
+    password: root
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+app:
+  auth:
+    service-url: http://localhost:8081
+    session-cookie-name: AUTH_SESSION
+    jwt:
+      secret: "my-super-secret-key-for-microservice-project"
+      expiration-ms: 3600000
+#  demo:
+#    email: ankit.maindola@gmail.com
+#    password: 12345678
+#    run-on-startup: false
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8079/eureka/
+

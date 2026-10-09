@@ -1,0 +1,47 @@
+server:
+  port: 8083
+  servlet:
+    session:
+      cookie:
+        name: ORDER_SERVICE_SESSION
+
+spring:
+  application:
+    name: order-service
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/order_db
+    username: root
+    password: root
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+
+    spring:
+      kafka:
+        bootstrap-servers: kafka:9092
+
+        producer:
+          key-serializer: org.apache.kafka.common.serialization.StringSerializer
+          value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+        consumer:
+          group-id: order-service
+          key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+          value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+
+app:
+  auth:
+    service-url: http://localhost:8081
+    session-cookie-name: AUTH_SESSION
+    jwt:
+      secret: "my-super-secret-key-for-microservice-project"
+      expiration-ms: 3600000
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8079/eureka/
