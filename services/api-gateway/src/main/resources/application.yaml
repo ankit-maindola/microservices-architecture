@@ -2,6 +2,14 @@ server:
   port: 8080
   forward-headers-strategy: framework
 
+app:
+  auth:
+    service-url: http://localhost:8081
+    session-cookie-name: AUTH_SESSION
+    jwt:
+      secret: "my-super-secret-key-for-microservice-project"
+      expiration-ms: 3600000
+
 spring:
   application:
     name: api-gateway
@@ -22,6 +30,10 @@ spring:
               predicates:
                 - Path=/logout
 
+            - id: user-service-root
+              uri: lb://user-service
+              predicates:
+                - Path=/api/users
             - id: user-service
               uri: lb://user-service
               predicates:

@@ -32,6 +32,7 @@ public class SecurityConfig {
 		}
 		return uri.equals("/api/auth")
 				|| uri.equals("/api/auth/login")
+				|| uri.equals("/api/auth/register")
 				|| uri.startsWith("/api/auth/public/");
 	};
 

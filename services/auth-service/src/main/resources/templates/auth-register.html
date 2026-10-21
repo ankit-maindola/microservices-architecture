@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Auth Service – Register</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 24rem; margin: 3rem auto; padding: 0 1rem; }
+        label { display: block; margin-top: 1rem; font-weight: 600; }
+        input { width: 100%; padding: 0.5rem; margin-top: 0.25rem; box-sizing: border-box; }
+        button { margin-top: 1.25rem; padding: 0.5rem 1rem; cursor: pointer; }
+        .error { color: #b00020; margin-top: 1rem; }
+        .hint { color: #555; font-size: 0.9rem; margin-top: 0.25rem; }
+        .nav { margin-top: 1.5rem; }
+    </style>
+</head>
+<body>
+<h1>Create account</h1>
+<p>Register with your email and password (min 8 characters).</p>
+
+<p th:if="${error}" class="error" th:text="${error}">Error</p>
+
+<form th:action="@{/api/auth/register}" method="post">
+    <label for="email">Email</label>
+    <input id="email" name="email" type="email" autocomplete="email" required th:value="${email}"/>
+
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password" autocomplete="new-password" minlength="8" maxlength="100" required/>
+    <p class="hint">At least 8 characters.</p>
+
+    <label for="confirmPassword">Confirm password</label>
+    <input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password" minlength="8" maxlength="100" required/>
+
+    <button type="submit">Register</button>
+</form>
+
+<p class="nav">Already have an account? <a th:href="@{/api/auth/home}">Sign in</a></p>
+</body>
+</html>

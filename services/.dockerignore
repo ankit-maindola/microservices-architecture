@@ -1,0 +1,9 @@
+**/.git
+**/.idea
+**/.vscode
+**/target
+**/.mvn/wrapper/maven-wrapper.jar
+**/out
+**/*.iml
+**/HELP.md
+**/agent-transcripts

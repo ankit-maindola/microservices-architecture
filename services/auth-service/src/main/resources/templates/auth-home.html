@@ -31,7 +31,9 @@
         <button type="submit">Login</button>
     </form>
     <p th:if="${param.error}" class="error">Invalid email or password.</p>
+    <p th:if="${param.registered}" class="welcome">Registration successful. Sign in below.</p>
     <p th:if="${param.logout}" class="welcome">You have been signed out.</p>
+    <p class="welcome">No account? <a th:href="@{/api/auth/register}">Register here</a></p>
     <p class="welcome">Already signed in? Open <a th:href="@{/api/auth/home}">account home</a> to sign out.</p>
 </div>
 

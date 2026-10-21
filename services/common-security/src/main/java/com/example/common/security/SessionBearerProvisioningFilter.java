@@ -5,6 +5,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -17,6 +19,7 @@ import java.io.IOException;
 public class SessionBearerProvisioningFilter extends OncePerRequestFilter {
 
 	private final AuthJwtIssuer jwtIssuer;
+	private final AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
 
 	public SessionBearerProvisioningFilter(AuthJwtIssuer jwtIssuer) {
 		this.jwtIssuer = jwtIssuer;
@@ -42,7 +45,9 @@ public class SessionBearerProvisioningFilter extends OncePerRequestFilter {
 			return;
 		}
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if (authentication == null || !authentication.isAuthenticated()) {
+		if (authentication == null
+				|| !authentication.isAuthenticated()
+				|| trustResolver.isAnonymous(authentication)) {
 			return;
 		}
 		String username = authentication.getName();

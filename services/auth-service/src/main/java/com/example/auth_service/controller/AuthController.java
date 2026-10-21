@@ -29,7 +29,8 @@ public class AuthController {
                 "service", "auth-service",
                 "endpoints", Map.of(
                         "browserLogin", "GET /api/auth/home (form login)",
-                        "register", "POST /api/auth/register JSON: { email, password }",
+                        "browserRegister", "GET /api/auth/register (form register)",
+                        "register", "POST /api/auth/public/register JSON: { email, password }",
                         "login", "POST /api/auth/login JSON: { email, password }"
                 )
         ));

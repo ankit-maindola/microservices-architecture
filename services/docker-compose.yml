@@ -1,0 +1,203 @@
+# Startup order (Compose respects depends_on + healthchecks):
+#   1. mysql
+#   2. service-discovery (Eureka)
+#   3. auth, user, order, payment, inventory, notification
+#   4. api-gateway (entry point http://localhost:8080)
+
+name: microservices-project
+
+x-eureka-env: &eureka-env
+  EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://service-discovery:8079/eureka/
+  EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+
+x-eureka-and-auth: &eureka-and-auth
+  EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://service-discovery:8079/eureka/
+  EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+  APP_AUTH_SERVICE_URL: http://auth-service:8081
+  APP_AUTH_SESSION_COOKIE_NAME: AUTH_SESSION
+  APP_AUTH_JWT_SECRET: "my-super-secret-key-for-microservice-project"
+  APP_AUTH_JWT_EXPIRATION_MS: "3600000"
+
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: ms-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      # Host 3307 avoids conflict with local MySQL on 3306; apps in Compose use mysql:3306
+      - "3307:3306"
+    volumes:
+      - ./docker/mysql/init-databases.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  service-discovery:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_DIR: service-discovery
+    container_name: ms-eureka
+    ports:
+      - "8079:8079"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8079/"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+      start_period: 40s
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_DIR: auth-service
+    container_name: ms-auth
+    depends_on:
+      mysql:
+        condition: service_healthy
+      service-discovery:
+        condition: service_healthy
+    environment:
+      <<: *eureka-env
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/auth_db
+      APP_JWT_SECRET: "my-super-secret-key-for-microservice-project"
+    ports:
+      - "8081:8081"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8081/api/auth"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 60s
+
+  user-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_DIR: user-service
+    container_name: ms-user
+    depends_on:
+      mysql:
+        condition: service_healthy
+      service-discovery:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+    environment:
+      <<: *eureka-and-auth
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/user_db
+    ports:
+      - "8082:8082"
+
+  order-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_DIR: order-service
+    container_name: ms-order
+    depends_on:
+      mysql:
+        condition: service_healthy
+      service-discovery:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+    environment:
+      <<: *eureka-and-auth
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/order_db
+      SPRING_AUTOCONFIGURE_EXCLUDE: org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
+    ports:
+      - "8083:8083"
+
+  payment-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_DIR: payment-service
+    container_name: ms-payment
+    depends_on:
+      mysql:
+        condition: service_healthy
+      service-discovery:
+        condition: service_healthy
+    environment:
+      <<: *eureka-env
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/payment_db
+    ports:
+      - "8084:8084"
+
+  inventory-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_DIR: inventory-service
+    container_name: ms-inventory
+    depends_on:
+      mysql:
+        condition: service_healthy
+      service-discovery:
+        condition: service_healthy
+    environment:
+      <<: *eureka-env
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/inventory_db
+    ports:
+      - "8085:8085"
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_DIR: notification-service
+    container_name: ms-notification
+    depends_on:
+      service-discovery:
+        condition: service_healthy
+    environment:
+      <<: *eureka-env
+      SERVER_PORT: "8086"
+      SPRING_AUTOCONFIGURE_EXCLUDE: org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
+    ports:
+      - "8086:8086"
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_DIR: api-gateway
+    container_name: ms-gateway
+    depends_on:
+      service-discovery:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+      user-service:
+        condition: service_started
+      order-service:
+        condition: service_started
+    environment:
+      <<: *eureka-and-auth
+    ports:
+      - "8080:8080"
