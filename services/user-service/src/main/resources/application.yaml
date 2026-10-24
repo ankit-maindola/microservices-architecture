@@ -19,17 +19,13 @@ spring:
       ddl-auto: update
     show-sql: true
 
-app:
-  auth:
-    service-url: http://localhost:8081
-    session-cookie-name: AUTH_SESSION
-    jwt:
-      secret: "my-super-secret-key-for-microservice-project"
-      expiration-ms: 3600000
-#  demo:
-#    email: ankit.maindola@gmail.com
-#    password: 12345678
-#    run-on-startup: false
+#app:
+#  auth:
+#    service-url: http://localhost:8081
+#    session-cookie-name: AUTH_SESSION
+#    jwt:
+#      secret: "my-super-secret-key-for-microservice-project"
+#      expiration-ms: 3600000
 
 eureka:
   client:

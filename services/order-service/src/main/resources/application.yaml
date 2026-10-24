@@ -33,13 +33,13 @@ spring:
           key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
           value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
 
-app:
-  auth:
-    service-url: http://localhost:8081
-    session-cookie-name: AUTH_SESSION
-    jwt:
-      secret: "my-super-secret-key-for-microservice-project"
-      expiration-ms: 3600000
+#app:
+#  auth:
+#    service-url: http://localhost:8081
+#    session-cookie-name: AUTH_SESSION
+#    jwt:
+#      secret: "my-super-secret-key-for-microservice-project"
+#      expiration-ms: 3600000
 
 eureka:
   client:
