@@ -1,0 +1,21 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: meeting-scheduler-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root_secret
+      MYSQL_DATABASE: meetings
+      MYSQL_USER: meeting_user
+      MYSQL_PASSWORD: meeting_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - meeting_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-umeeting_user", "-pmeeting_pass"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  meeting_mysql_data:

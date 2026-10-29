@@ -1,0 +1,22 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+  ai:
+    google:
+      genai:
+        api-key: test-key
+        chat:
+          options:
+            model: gemini-2.0-flash
+
+meeting:
+  default-time-zone: UTC
+  gemini:
+    log-requests: false
+  ssl:
+    merge-windows-root-certificates: false
+
+logging:
+  level:
+    root: WARN

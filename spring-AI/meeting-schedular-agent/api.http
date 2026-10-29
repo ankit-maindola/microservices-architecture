@@ -1,0 +1,37 @@
+### AI configured? (always works)
+GET http://localhost:8080/api/meetings/ai/status
+
+### Create meeting (no OpenAI required)
+POST http://localhost:8080/api/meetings
+Content-Type: application/json
+
+{
+  "topic": "Project Review",
+  "startTime": "2026-11-10T09:00:00Z",
+  "endTime": "2026-11-10T10:00:00Z",
+  "participants": [{ "email": "alice@example.com" }]
+}
+
+### List meetings (GET — not POST)
+GET http://localhost:8080/api/meetings?from=2026-11-01T00:00:00Z&to=2026-12-01T00:00:00Z
+
+### Check availability
+POST http://localhost:8080/api/meetings/availability
+Content-Type: application/json
+
+{
+  "participantEmails": ["alice@example.com"],
+  "startTime": "2026-11-10T09:00:00Z",
+  "endTime": "2026-11-10T10:00:00Z"
+}
+
+### Natural language (requires GEMINI_API_KEY + app restart)
+### On Windows, corporate TLS is handled automatically (JDK cacerts + Windows ROOT).
+POST http://localhost:8080/api/meetings/ai
+Content-Type: application/json
+
+{
+  "prompt": "Schedule a team sync tomorrow 2pm to 3pm with alice@example.com",
+  "timeZone": "Asia/Kolkata",
+  "confirmSchedule": true
+}

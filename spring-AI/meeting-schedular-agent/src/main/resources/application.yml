@@ -1,0 +1,60 @@
+spring:
+  config:
+    import: optional:file:.env[.properties]
+  application:
+    name: ai-meeting-scheduler
+  autoconfigure:
+    exclude:
+      - org.springframework.ai.model.google.genai.autoconfigure.chat.GoogleGenAiChatAutoConfiguration
+      - org.springframework.ai.model.google.genai.autoconfigure.embedding.GoogleGenAiEmbeddingConnectionAutoConfiguration
+      - org.springframework.ai.model.google.genai.autoconfigure.embedding.GoogleGenAiTextEmbeddingAutoConfiguration
+  datasource:
+    url: jdbc:mysql://localhost:3306/meetings_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  ai:
+    google:
+      genai:
+        # Google AI Studio / Gemini Developer API key (see GEMINI_API_KEY in .env)
+        api-key: ${GEMINI_API_KEY:${GOOGLE_API_KEY:}}
+        chat:
+          options:
+            model: ${GEMINI_MODEL:${GEMINI_MODEL:}}
+            temperature: 0.1
+
+server:
+  port: ${SERVER_PORT:8080}
+  error:
+    include-message: always
+
+meeting:
+  default-time-zone: ${MEETING_DEFAULT_TIME_ZONE:UTC}
+  gemini-api-key: ${MEETING_GEMINI_API_KEY:}
+  gemini-http-timeout-ms: ${GEMINI_HTTP_TIMEOUT_MS:60000}
+  gemini:
+    # Log system/user messages + model options sent to Gemini (never logs the API key)
+    log-requests: ${GEMINI_LOG_REQUESTS:true}
+  intent-parser:
+    model: ${GEMINI_INTENT_MODEL:${GEMINI_MODEL:}}
+    max-output-tokens: ${GEMINI_INTENT_MAX_OUTPUT_TOKENS:512}
+  ssl:
+    # On Windows, merge JDK cacerts + Windows ROOT (fixes corporate TLS / PKIX to Google Gemini).
+    merge-windows-root-certificates: ${SSL_MERGE_WINDOWS_ROOT:true}
+    trust-store: ${SSL_TRUST_STORE:}
+    trust-store-password: ${SSL_TRUST_STORE_PASSWORD:changeit}
+    trust-store-type: ${SSL_TRUST_STORE_TYPE:JKS}
+
+logging:
+  level:
+    root: INFO
+    com.example.meetingscheduler: INFO
+    org.springframework.ai: INFO
+    com.example.meetingscheduler.config.GeminiPromptLogger: INFO
